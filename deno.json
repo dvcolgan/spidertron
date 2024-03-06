@@ -1,0 +1,35 @@
+{
+  "lock": true,
+  "tasks": {
+    "start": "deno run --allow-read --allow-write --allow-net --allow-env --watch mod.ts"
+  },
+  "lint": {
+    "rules": {
+      "tags": [
+        "recommended"
+      ]
+    }
+  },
+  "fmt": {
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": false,
+    "singleQuote": true,
+    "proseWrap": "preserve"
+  },
+  "unstable": [
+    "kv"
+  ],
+  "imports": {
+    "axios": "npm:axios@1.6.7",
+    "discord": "npm:discord.js@14.14.1",
+    "dotenv": "https://deno.land/std@0.218.2/dotenv/mod.ts",
+    "ejs": "npm:ejs@3.1.9",
+    "denofs": "https://deno.land/std@0.218.2/fs/mod.ts",
+    "markdown-it": "npm:markdown-it@14.0.0",
+    "oak": "https://deno.land/x/oak@v12.4.0/mod.ts",
+    "denopath": "https://deno.land/std@0.218.2/path/mod.ts",
+    "yaml": "npm:yaml@2.4.0",
+    "zod": "https://deno.land/x/zod@v3.22.4/mod.ts"
+  }
+}
