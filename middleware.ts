@@ -3,6 +3,8 @@ import * as settings from './settings.ts'
 import Log from './log.ts'
 import { getRecursiveFilepath } from './utils.ts'
 import kv from './kv.ts'
+import { join } from 'denopath'
+import Yaml from 'yaml'
 
 export const handleGlobalErrors = async (
   ctx: Context,
@@ -61,17 +63,63 @@ export const handleStaticFiles = async (
   }
 }
 
+export const handleStaticYamlJsonMarkdown = async (
+  ctx: Context,
+  next: Next,
+): Promise<void> => {
+  const recursiveFilepath = getRecursiveFilepath(ctx)
+  if (settings.DYNAMIC_FILE_TYPES.includes(recursiveFilepath.ext)) {
+    const fileContents = Deno.readTextFileSync(join(
+      recursiveFilepath.dir,
+      recursiveFilepath.base,
+    ))
+
+    if (['.yml', '.yaml'].includes(recursiveFilepath.ext)) {
+      Log.yellow(`[data] Found some YAML`)
+      ctx.response.body = JSON.stringify(Yaml.parse(fileContents))
+      ctx.response.type = 'json'
+      ctx.response.status = 200
+    } else if (recursiveFilepath.ext === '.json') {
+      Log.yellow(`[data] Found some JSON`)
+      ctx.response.body = fileContents
+      ctx.response.type = 'json'
+      ctx.response.status = 200
+    } else if (['.md', '.markdown'].includes(recursiveFilepath.ext)) {
+      Log.yellow(`[data] Found some Markdown`)
+      ctx.response.body = fileContents
+      ctx.response.type = 'markdown'
+      ctx.response.status = 200
+    } else {
+      ctx.throw(400)
+    }
+  } else {
+    await next()
+  }
+}
+
+interface RecursiveEvent {
+  eventType: string
+  payload: object
+}
+
 export const handleWebsockets = async (ctx: Context, next: Next) => {
   if (ctx.isUpgradable) {
     const socket = ctx.upgrade()
-    kv.listenQueue((message: unknown) => {
+    kv.listenQueue((message: RecursiveEvent) => {
       Log.yellow(`[websocket] ${JSON.stringify(message)}`)
-      socket.send('chrome:refresh')
+      socket.send(JSON.stringify({
+        eventType: 'chrome:refresh',
+        payload: {},
+      }))
     })
 
-    // socket.onmessage = (event) => {
-    //   Log.yellow(`[websocket] ${event.data}`)
-    // }
+    socket.onmessage = (event: MessageEvent) => {
+      const {
+        eventType,
+        payload,
+      } = JSON.parse(event.data) as RecursiveEvent
+      Log.yellow(`[websocket] ${eventType}: ${JSON.stringify(payload)}`)
+    }
   } else {
     await next()
   }

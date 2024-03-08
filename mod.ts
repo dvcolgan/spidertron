@@ -11,6 +11,7 @@ const app = new Application()
 app.use(Middleware.handleGlobalErrors)
 app.use(Middleware.removeTrailingSlash)
 app.use(Middleware.handleStaticFiles)
+app.use(Middleware.handleStaticYamlJsonMarkdown)
 app.use(Middleware.handleWebsockets)
 app.use(renderHtmlMiddleware)
 
@@ -22,7 +23,7 @@ const watcher = Deno.watchFs(settings.RECURSIVE_ROOT.dir, { recursive: true })
 const watchFiles = debounce((event: Deno.FsEvent) => {
   console.log('[%s] %s', event.kind, event.paths[0])
   Log.purple('[queue] chrome:refresh')
-  kv.enqueue({ event: 'chrome:refresh', payload: {} })
+  kv.enqueue({ eventType: 'chrome:refresh', payload: {} })
 }, 200)
 
 for await (const event of watcher) {

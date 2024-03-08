@@ -14,7 +14,10 @@ export const DISCORD_TOKEN = Deno.env.get('DISCORD_TOKEN') || ''
 export const DISCORD_CLIENT_ID = Deno.env.get('DISCORD_CLIENT_ID') || ''
 export const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY') || ''
 
-export const MARKDOWN_FILE_TYPES = [
+export const DYNAMIC_FILE_TYPES = [
+  '.yml',
+  '.yaml',
+  '.json',
   '.md',
   '.markdown',
 ]
